@@ -43,7 +43,6 @@ public class ConversationDeletionWorker extends SwingWorker<String, String[]> {
 			String status = get();
 			String recipient = main.getRecipient();
 			main.setActionStatus(status);
-			main.setMessage("No messages from" + recipient);
 			new MessageListWorker(main, recipient).execute();
 		} catch (ExecutionException e) {
 			main.setActionStatus("Conversation deletion failed: " + e.getMessage());

@@ -1,0 +1,6 @@
+*.class
+*.tar.gz
+*.pdf
+*.png
+*.jar
+data/

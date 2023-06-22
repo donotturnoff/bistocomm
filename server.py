@@ -6,14 +6,9 @@ import hashlib
 import time
 import datetime
 
-splash = """      ______________________________________________________
-     / ___  __________________  _________  __  _____  ___  /
-    / / _ )/  _/ __/_  __/ __ \/ ___/ __ \/  |/  /  |/  / /
-   / / _  |/ /_\ \  / / / /_/ / /__/ /_/ / /|_/ / /|_/ / /
-  / /____/___/___/ /_/  \____/\___/\____/_/  /_/_/  /_/ /
- /_____________________________________________________/
-"""
+# Configuration
 directory = "data"
+usersDB = "users"
 gcWait = 0.5
 logLevel = 3
 port = 5001
@@ -23,6 +18,17 @@ maxUsernameLength = 64
 maxConnections = 5
 forbiddenUsernames = ["admin", "root"]
 forbiddenPasswords = ["password", "123", "1234", "12345", "abc", "qwerty"]
+
+splash = """      ______________________________________________________
+     / ___  __________________  _________  __  _____  ___  /
+    / / _ )/  _/ __/_  __/ __ \/ ___/ __ \/  |/  /  |/  / /
+   / / _  |/ /_\ \  / / / /_/ / /__/ /_/ / /|_/ / /|_/ / /
+  / /____/___/___/ /_/  \____/\___/\____/_/  /_/_/  /_/ /
+ /_____________________________________________________/
+"""
+
+# Program
+forbiddenUsernames.append(usersDB)
 
 properties = {
     "maxMessageLength": maxMessageLength,
@@ -35,7 +41,7 @@ properties = {
 codes = {
     200: {
         "status": "OK",
-        "description": "The request completed successfully"            
+        "description": "The request completed successfully"
     }
 }
 
@@ -148,19 +154,19 @@ def handlePost(parts):
             if authenticate(username, password):
                 if (usernameTaken(recipient)):
                     usernameSpace = max(len(username), len(recipient)) + 5
-                    
+
                     timestamp = str(datetime.datetime.now().strftime("%d/%m/%y %H:%M:%S"))
-                    
+
                     messageLine = timestamp.ljust(len(timestamp) + 4, " ") + (username + ":").ljust(usernameSpace, " ") + message + "\n"
-                    
+
                     recipientFile = open(directory + "/" + recipient + "/" + username, "a+")
                     recipientFile.write(messageLine)
                     recipientFile.close()
-                    
+
                     senderFile = open(directory + "/" + username + "/" + recipient, "a+")
                     senderFile.write(messageLine)
                     senderFile.close()
-                    
+
                     return 201, "Message sent to " + recipient + "."
                 else:
                     return 404, "User " + recipient + " not found."
@@ -264,7 +270,7 @@ def handlePing(parts):
         return 200, ping
     else:
         return 400, "Syntax: " + verbs["PING"]["syntax"]
-        
+
 def handleInfo(parts):
     if len(parts) == 1:
         info = ""
@@ -393,12 +399,12 @@ gcThread.start()
 while True:
     c, addr = s.accept()
     ip = addr[0]
-    
+
     if not ip in clients:
         clients[ip] = []
-        
+
     cid = len(clients[ip])
     thread = threading.Thread(target = handleConnection, args = (cid, c, addr), daemon = True)
-    
+
     clients[ip].append(thread)
     thread.start()
